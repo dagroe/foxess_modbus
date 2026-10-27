@@ -179,6 +179,26 @@ class ModbusRemoteControlFactory:
             value_setter=_set_max_soc,
         )
 
+        def _set_charge_power(manager: EntityRemoteControlManager, value: int) -> None:
+            manager.charge_power = -value
+
+        battery_power_limit_up = ModbusRemoteControlNumberDescription(  # type: ignore
+            key="battery_power_limit_up",
+            name="Battery Power Limit Up",
+            models=[],
+            native_max_value_callback=lambda x: -x.inverter_capacity,  # - to counteract -ve scale
+            mode=NumberMode.BOX,
+            device_class=NumberDeviceClass.POWER,
+            native_min_value=0.0,
+            # Max value is read from the inverter
+            native_step=0.001,
+            native_unit_of_measurement="kW",
+            # The register is negative
+            scale=-0.001,
+            signed=True,
+            value_setter=_set_charge_power,
+        )
+
         self.entity_descriptions: list[EntityFactory] = [
             charge_power,
             discharge_power,
